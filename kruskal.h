@@ -106,9 +106,15 @@ inline MSTResult kruskal(const std::vector<std::vector<std::pair<int, int>>>& ad
         }
     }
 
-    // Sort by weight ascending.
-    std::sort(allEdges.begin(), allEdges.end(),
-              [](const Edge& a, const Edge& b) { return a.w < b.w; });
+    // Sort by weight ascending. Ties are broken by (smaller endpoint, larger endpoint)
+    // so the edge order is a strict total order. With such an order the MST is unique,
+    // which makes Kruskal and Prim (which uses the same order) pick identical edges.
+    std::sort(allEdges.begin(), allEdges.end(), [](const Edge& a, const Edge& b) {
+        if (a.w != b.w) return a.w < b.w;
+        int aLo = std::min(a.u, a.v), bLo = std::min(b.u, b.v);
+        if (aLo != bLo) return aLo < bLo;
+        return std::max(a.u, a.v) < std::max(b.u, b.v);
+    });
 
     MSTResult result;
     DisjointSet dsu(n);

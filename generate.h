@@ -6,6 +6,8 @@
 
 using namespace std;
 
+using Graph = vector<vector<pair<int, int>>>;
+
 // Adjacency list: vector of pairs {neighbor, weight}
 vector<vector<pair<int, int>>> adj;
 int N, M;
@@ -29,7 +31,7 @@ bool addEdge(int u, int v, int w, mt19937& gen, set<pair<int, int>>& edges) {
 }
 
 // Generate a connected graph
-void generateConnectedGraph(int n, int m) {
+Graph generateConnectedGraph(int n, int m) {
     N = n;
     M = m;
     adj.assign(N, vector<pair<int, int>>());
@@ -58,7 +60,7 @@ void generateConnectedGraph(int n, int m) {
     // If M < N-1, it's impossible to be connected
     if (edgesNeeded < 0) {
         cout << "Error: Cannot have fewer edges than N-1 for a connected graph." << endl;
-        return;
+        return adj;
     }
 
     while (edgesNeeded > 0) {
@@ -70,6 +72,8 @@ void generateConnectedGraph(int n, int m) {
             edgesNeeded--;
         }
     }
+
+    return adj;
 }
 
 void printGraph() {

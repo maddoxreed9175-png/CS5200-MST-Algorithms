@@ -62,8 +62,10 @@ inline MSTResult prim(const std::vector<std::vector<std::pair<int, int>>>& adj,
     MSTResult result;
     if (n == 0) return result;
 
-    // Heap entry: (weight, to, from), ordered by smallest weight first.
-    using Entry = std::tuple<int, int, int>;
+    // Heap entry: (weight, smaller endpoint, larger endpoint, to, from).
+    // Ordered by smallest weight first, ties broken by (smaller, larger endpoint),
+    // the same total order Kruskal uses, so both algorithms select identical edges.
+    using Entry = std::tuple<int, int, int, int, int>;
     std::priority_queue<Entry, std::vector<Entry>, std::greater<Entry>> pq;
 
     std::vector<bool> inTree(n, false);
@@ -73,17 +75,18 @@ inline MSTResult prim(const std::vector<std::vector<std::pair<int, int>>>& adj,
         ++components;
         inTree[src] = true;
         for (const auto& [v, w] : adj[src]) {
-            if (!inTree[v]) pq.emplace(w, v, src);
+            if (!inTree[v]) pq.emplace(w, std::min(src, v), std::max(src, v), v, src);
         }
         while (!pq.empty()) {
-            auto [w, v, from] = pq.top();
+            auto [w, lo, hi, v, from] = pq.top();
+            (void)lo; (void)hi;
             pq.pop();
             if (inTree[v]) continue;  // stale entry, vertex already reached cheaper
             inTree[v] = true;
             result.edges.push_back({from, v, w});
             result.totalWeight += w;
             for (const auto& [x, wx] : adj[v]) {
-                if (!inTree[x]) pq.emplace(wx, x, v);
+                if (!inTree[x]) pq.emplace(wx, std::min(v, x), std::max(v, x), x, v);
             }
         }
     };
