@@ -1,3 +1,6 @@
+#ifndef GENERATE_H
+#define GENERATE_H
+
 #include <iostream>
 #include <vector>
 #include <random>
@@ -85,3 +88,5 @@ void printGraph() {
         cout << endl;
     }
 }
+
+#endif
